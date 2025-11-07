@@ -1,35 +1,45 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 
 export async function POST(request: Request) {
   const { event, session } = await request.json();
 
+  // Criamos a resposta para poder manipular cookies diretamente
+  const response = NextResponse.json({ success: true });
+
+  // Criar cliente Supabase com controle total sobre cookies
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        async get(name: string) {
-          return (await cookies()).get(name)?.value;
+        get(name: string) {
+          return request.headers.get('cookie')
+            ?.match(new RegExp(`${name}=([^;]*)`))
+            ?.[1];
         },
-        async set(name: string, value: string, options: CookieOptions) {
-          (await cookies()).set(name, value, options);
+        set(name: string, value: string, options: CookieOptions) {
+          response.cookies.set(name, value, options);
         },
-        async remove(name: string, options: CookieOptions) {
-          (await cookies()).delete(name);
+        remove(name: string, options: CookieOptions) {
+          response.cookies.set(name, '', { ...options, maxAge: 0 });
         },
       },
     }
   );
 
-  if (event === 'SIGNED_IN') {
-    // Se for um login, define a sessão. Isso SALVA o cookie.
+  // 🧠 Atualiza a sessão quando o usuário faz login
+  if (event === 'SIGNED_IN' && session) {
     await supabase.auth.setSession({
       access_token: session.access_token,
       refresh_token: session.refresh_token,
     });
-  } 
+  }
 
-  return NextResponse.json({ ok: true });
+  // 🚪 Limpa os cookies quando o usuário faz logout
+  if (event === 'SIGNED_OUT') {
+    await supabase.auth.signOut();
+  }
+
+  return response;
 }
