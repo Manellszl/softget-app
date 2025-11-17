@@ -5,6 +5,7 @@ import { Plus, Download, TrendingUp, TrendingDown, Landmark, CheckSquare, Phone,
 import Link from 'next/link';
 import ReceitasBarChart from '../_components/ReceitasBarChart';
 import DespesasPieChart from '../_components/DespesasPieChart';
+import FiltroPeriodo from '../_components/FiltroPeriodo';
 
 export const revalidate = 0;
 
@@ -22,7 +23,6 @@ function formatPeriodo(ano: number, mes: number) {
   return new Date(ano, mes - 1).toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
 }
 
-// Definimos o tipo de retorno da nossa função SQL
 type Periodo = {
   ano: number;
   mes: number;
@@ -69,7 +69,7 @@ export default async function FinanceiroPage({ params, searchParams }: Props) {
   const searchParamsData = await searchParams;
 
   const periodosValidos = Array.isArray(periodosDisponiveis) ? periodosDisponiveis : [];
-
+  
   const periodoSelecionado = (searchParamsData.periodo as string) 
     || (periodosValidos.length > 0 ? `${periodosValidos[0].ano}-${String(periodosValidos[0].mes).padStart(2, '0')}` : periodoAtual);
   
@@ -79,8 +79,7 @@ export default async function FinanceiroPage({ params, searchParams }: Props) {
   const ultimoDia = new Date(anoSelecionado, mesSelecionado, 0).toISOString();
 
 
-  // 6. Buscar os Dados do Mês Selecionado
-  
+  // Buscar os Dados do Mês Selecionado
   const { count: membrosAtivos, error: membrosError } = await supabase
     .from('Membros')
     .select('*', { count: 'exact', head: true })
@@ -104,86 +103,44 @@ export default async function FinanceiroPage({ params, searchParams }: Props) {
 
   if (lancamentosError) console.error('Erro ao buscar lançamentos:', lancamentosError.message);
 
-  //  Calcular Resumos
+  // Calcular Resumos
   const listaLancamentos = lancamentos ?? [];
-  
   const receitasMes = listaLancamentos.filter(l => l.valor > 0).reduce((acc, l) => acc + l.valor, 0);
   const despesasMes = listaLancamentos.filter(l => l.valor < 0).reduce((acc, l) => acc + l.valor, 0);
   const saldoMes = receitasMes + despesasMes;
-
   const mensalidadesPagas = listaLancamentos.filter(l => l.categoria === 'Mensalidades').length;
   const totalAtivos = membrosAtivos ?? 0;
-
-  // Gráfico de Barras (Receitas por Categoria)
-  const receitasData = listaLancamentos
-    .filter(l => l.tipo === 'Receita')
-    .reduce((acc, l) => {
-      const cat = l.categoria || 'Outros';
-      acc[cat] = (acc[cat] || 0) + l.valor;
-      return acc;
-    }, {} as { [key: string]: number });
+  const receitasData = listaLancamentos.filter(l => l.tipo === 'Receita').reduce((acc, l) => { const cat = l.categoria || 'Outros'; acc[cat] = (acc[cat] || 0) + l.valor; return acc; }, {} as { [key: string]: number });
   const receitasBarData = Object.keys(receitasData).map(name => ({ name, Valor: receitasData[name] }));
-
-  // Gráfico de Pizza (Despesas por Categoria)
-  const despesasData = listaLancamentos
-    .filter(l => l.tipo === 'Despesa')
-    .reduce((acc, l) => {
-      const cat = l.categoria || 'Outros';
-      acc[cat] = (acc[cat] || 0) + Math.abs(l.valor);
-      return acc;
-    }, {} as { [key: string]: number });
+  const despesasData = listaLancamentos.filter(l => l.tipo === 'Despesa').reduce((acc, l) => { const cat = l.categoria || 'Outros'; acc[cat] = (acc[cat] || 0) + Math.abs(l.valor); return acc; }, {} as { [key: string]: number });
   const despesasPieData = Object.keys(despesasData).map(name => ({ name, value: despesasData[name] }));
-  
-  // Tabela de Mensalidades
-  const tabelaMensalidades = listaLancamentos
-    .filter(l => l.categoria === 'Mensalidades')
-    .map(l => {
+  const tabelaMensalidades = listaLancamentos.filter(l => l.categoria === 'Mensalidades').map(l => {
       // @ts-ignore
       const nome = l.Membros?.Pessoas?.nome_completo ?? 'Pagamento Avulso';
-      return {
-        nome: nome,
-        data: l.data_lancamento,
-        valor: l.valor,
-        forma: 'PIX',
-      }
+      return { nome: nome, data: l.data_lancamento, valor: l.valor, forma: 'PIX' }
     });
-    
-  // Cards do rodapé
   const totalMensalidades = receitasData['Mensalidades'] ?? 0;
   const totalVerbas = receitasData['Verbas Governamentais'] ?? 0;
   const totalDoacoes = receitasData['Doações'] ?? 0;
 
 
-  //  Renderizar a Página
+  // Renderizar a Página
   return (
     <div>
-      {/* --- Cabeçalho e Filtro --- */}
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Gestão Financeira</h1>
           <p className="text-lg text-gray-600">Controle completo das finanças da associação</p>
         </div>
         <div className="flex items-center space-x-4">
-          
-          <form method="GET" action="" className="flex items-center space-x-2">
-            <select 
-              name="periodo" 
-              defaultValue={periodoSelecionado}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-            >
-              {periodosValidos.map(({ ano, mes }) => { 
-                const valor = `${ano}-${String(mes).padStart(2, '0')}`;
-                const nome = formatPeriodo(ano, mes);
-                return <option key={valor} value={valor}>{nome}</option>;
-              })}
-              {(periodosValidos.length === 0) && ( 
-                <option value={periodoAtual}>{formatPeriodo(anoAtual, mesAtual)}</option>
-              )}
-            </select>
-            <button type="submit" className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">
-              Filtrar
-            </button>
-          </form>
+
+          <FiltroPeriodo 
+            periodoSelecionado={periodoSelecionado}
+            periodosDisponiveis={periodosValidos}
+            periodoAtual={periodoAtual}
+            anoAtual={anoAtual}
+            mesAtual={mesAtual}
+          />
 
           <button className="flex items-center space-x-2 bg-gray-900 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700">
             <Plus className="w-5 h-5" />
@@ -192,6 +149,7 @@ export default async function FinanceiroPage({ params, searchParams }: Props) {
         </div>
       </div>
 
+      
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <ResumoCard titulo="Saldo do Mês" valor={formatCurrency(saldoMes)} Icone={Landmark} cor="text-indigo" />
         <ResumoCard titulo="Receitas do Mês" valor={formatCurrency(receitasMes)} Icone={TrendingUp} cor="text-green" />
@@ -210,7 +168,7 @@ export default async function FinanceiroPage({ params, searchParams }: Props) {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-md border border-gray-20Um mb-8">
+      <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 mb-8">
         <h2 className="text-xl font-semibold text-gray-800 mb-6">Controle de Mensalidades (Pagamentos do mês)</h2>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -258,7 +216,6 @@ export default async function FinanceiroPage({ params, searchParams }: Props) {
 }
 
 // --- Componentes de Card Reutilizáveis ---
-
 function ResumoCard({ titulo, valor, Icone, cor, subtitulo = "" }: { titulo: string, valor: string | number, Icone: React.ElementType, cor: string, subtitulo?: string }) {
   const coresIcone: { [key: string]: string } = {
     'text-indigo': 'text-indigo-600 bg-indigo-100',

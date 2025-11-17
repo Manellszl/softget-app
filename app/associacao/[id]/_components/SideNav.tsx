@@ -35,10 +35,8 @@ export default function SideNav({ papel, associacaoId, nomeAssociacao }: Props) 
   const linksVisiveis = navLinks.filter(link => link.papeis.includes(papel));
 
   return (
-    // --- 1. MUDANÇA AQUI: Fundo branco e borda lateral ---
-    <nav className="w-64 h-screen bg-white text-gray-900 flex flex-col p-4 border-r border-gray-200 flex-shrink-0">
+    <nav className="w-64 h-screen bg-white text-gray-900 flex flex-col p-4 border-r border-gray-200 shrink-0">
       
-      {/* --- 2. MUDANÇA AQUI: Título com 2 linhas (como no Figma) --- */}
       <div className="px-4 mb-10">
         <div className="text-2xl font-black text-gray-900 truncate" title={nomeAssociacao}>
           {nomeAssociacao}
@@ -47,7 +45,6 @@ export default function SideNav({ papel, associacaoId, nomeAssociacao }: Props) 
           Sistema de Gestão
         </div>
       </div>
-      {/* --- FIM DA MUDANÇA --- */}
 
       <ul className="space-y-2">
         {linksVisiveis.map((link) => {
@@ -63,8 +60,7 @@ export default function SideNav({ papel, associacaoId, nomeAssociacao }: Props) 
                 href={fullHref}
                 className={`
                   flex items-center space-x-4 p-3 rounded-lg transition-colors
-                  
-                  ${/* --- 3. MUDANÇA AQUI: Estilos de link Ativo e Inativo --- */ ''}
+
                   ${isActive 
                     ? 'bg-gray-900 text-white' // Fundo escuro e texto branco (Ativo)
                     : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' // Texto cinza, hover claro (Inativo)
