@@ -30,15 +30,13 @@ export default function LoginPage() {
     return () => subscription.unsubscribe();
   }, [supabase]);
 
-  // --- MUDANÇA AQUI ---
-  const theme = 'light'; // Trocado de 'dark' para 'light'
+  const theme = 'light'; 
 
   return (
-    // --- MUDANÇA AQUI ---
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      {/* --- MUDANÇA AQUI --- */}
+      {}
       <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-2xl border border-gray-200">
-        {/* --- MUDANÇA AQUI --- */}
+        {}
         <h1 className="mb-6 text-center text-3xl font-bold text-gray-900">
           SoftGet Login
         </h1>

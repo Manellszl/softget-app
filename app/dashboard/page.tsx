@@ -1,5 +1,5 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { cookies } from 'next/headers'; 
 import { redirect } from 'next/navigation';
 import { signOut } from './actions';
 import Link from 'next/link';
@@ -12,24 +12,24 @@ type Associacao = {
 };
 
 export default async function DashboardPage() {
-  const cookieStore = cookies();
-
-  // Cria cliente Supabase com suporte a SSR
+  
+  // Cria cliente Supabase com suporte a SSR (read-only)
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        async get(name: string) {
-          return (await cookieStore).get(name)?.value;
+        async get(name: string) { 
+          const cookieStore = await cookies(); 
+          return cookieStore.get(name)?.value; 
         },
-        async set() {},
+        async set() {}, 
         async remove() {},
       },
     }
   );
 
-  // Obtém usuário autenticado (forma segura)
+
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (!user || userError) {
     redirect('/');

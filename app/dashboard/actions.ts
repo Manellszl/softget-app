@@ -1,12 +1,9 @@
-'use server';
+'use server'; 
 
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-/**
- * Esta é uma Ação de Servidor (Server Action) segura para fazer o logout.
- */
 export async function signOut() { 
   
   const supabase = createServerClient(
