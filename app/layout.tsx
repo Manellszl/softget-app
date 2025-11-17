@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
-import { Geist } from "next/font/google"; 
+import type { Metadata, Viewport } from "next"; // <-- 1. IMPORTAR VIEWPORT
+import { Geist } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -8,14 +8,17 @@ const geistSans = Geist({
   weight: ['300', '400', '500', '600'] 
 });
 
+// 2. O METADATA (AGORA SEM A CHAVE 'viewport')
 export const metadata: Metadata = {
   title: "SoftGet - Sistema de Gestão",
   description: "Sistema de gestão de associações.",
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
+};
+
+// 3. O NOVO OBJETO VIEWPORT (SEPARADO)
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({
