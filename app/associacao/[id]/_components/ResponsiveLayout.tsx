@@ -1,7 +1,7 @@
-'use client'; // Este componente gerencia o estado (menu aberto/fechado)
+'use client'; 
 
 import { useState, ReactNode } from 'react';
-import SideNav from './SideNav'; // Nosso menu lateral
+import SideNav from './SideNav';
 import { Menu, X } from 'lucide-react';
 
 type Props = {
@@ -11,7 +11,7 @@ type Props = {
   associacaoId: string;
   nomeAssociacao: string;
   emailUsuario: string;
-  signOutAction: () => Promise<never>; // Ação de Sair
+  signOutAction: () => Promise<never>; 
 };
 
 export default function ResponsiveLayout({
@@ -63,7 +63,7 @@ export default function ResponsiveLayout({
       <div className="flex-1 flex flex-col overflow-hidden">
         
         {/* Cabeçalho */}
-        <header className="flex justify-between items-center p-4 bg-white border-b border-gray-200">
+       <header className="flex justify-between md:justify-end items-center p-4 bg-white border-b border-gray-200">
           
           {/* Botão Hambúrguer (Apenas Mobile) */}
           <button 
@@ -91,7 +91,6 @@ export default function ResponsiveLayout({
             </form>
           </div>
           
-          {/* Botão Sair (Mobile - Apenas o botão) */}
           <form action={signOutAction} className="md:hidden">
             <button 
               type="submit" 
@@ -103,7 +102,6 @@ export default function ResponsiveLayout({
 
         </header>
 
-        {/* Área de Conteúdo */}
         <main className="flex-1 p-4 md:p-8 overflow-y-auto">
           {children} 
         </main>

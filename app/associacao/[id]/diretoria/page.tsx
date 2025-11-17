@@ -156,11 +156,9 @@ export default async function DiretoriaPage({ params }: Props) {
                       {formatDate(membro.data_inicio)}<br/>
                       até {formatDate(membro.data_fim)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <Link href="#" className="text-blue-600 hover:text-blue-800">
-                        Ver Detalhes
-                      </Link>
-                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2"> {/* space-x-2 para um pouco menos de espaçamento */}
+                    <Link href="#" className="inline-flex items-center px-3 py-1 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Ver Detalhes</Link>
+                  </td>
                   </tr>
                 );
               })}

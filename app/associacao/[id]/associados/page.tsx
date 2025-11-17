@@ -6,12 +6,10 @@ import Link from 'next/link';
 
 export const revalidate = 0;
 
-// O 'params' vem do layout pai e É UMA PROMISE
 type Props = {
   params: Promise<{ id: string }>; 
 };
 
-// --- Helpers (Funções de Ajuda) ---
 
 // Helper para formatar R$
 function formatCurrency(value: number | null) {
@@ -243,13 +241,9 @@ export default async function AssociadosPage({ params }: Props) {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                       {formatDate(membro.data_admissao)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
-                      <Link href="#" className="text-blue-600 hover:text-blue-800">
-                        Editar
-                      </Link>
-                      <Link href="#" className="text-gray-500 hover:text-gray-700">
-                        Histórico
-                      </Link>
+                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <Link href="#" className="inline-flex items-center px-3 py-1 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Editar</Link>
+                      <Link href="#" className="inline-flex items-center px-3 py-1 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Histórico</Link>
                     </td>
                   </tr>
                 );
